@@ -1,0 +1,26 @@
+containers:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - 4566:4566
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - /tmp/localstack:/tmp/localstack
+  
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - 8001:8001
+    environment:
+      DYNAMO_ENDPOINT: http://localstack:4566
+      AWS_REGION: us-east-1
+    dependencies:
+      - localstack
+
+tasks:
+  runDynamoDBAdmin:
+    description: Run DynamoDB Admin.
+    group: Utility tasks
+    run:
+      container: dynamodb-admin
