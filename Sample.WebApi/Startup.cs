@@ -1,10 +1,13 @@
+using Amazon;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.Runtime;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Sample.WebApi.Registrations;
 
 namespace Sample.WebApi
 {
@@ -25,7 +28,16 @@ namespace Sample.WebApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sample.WebApi", Version = "v1" });
             });
-            services.AddAwsServices(Configuration);
+            // services.AddAwsServices(Configuration);
+            var credentials = new BasicAWSCredentials("", "");
+            var config = new AmazonDynamoDBConfig
+            {
+                RegionEndpoint = RegionEndpoint.USEast1,
+                ServiceURL = "http://127.0.0.1:4566"
+            };
+            var client = new AmazonDynamoDBClient(credentials, config);
+            services.AddSingleton<IAmazonDynamoDB>(client);
+            services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
